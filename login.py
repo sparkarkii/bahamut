@@ -45,22 +45,20 @@ def run(playwright) -> int | Exception:
 def login(report=True, report_success=False) -> None:
     with sync_playwright() as playwright:
         match run(playwright):
-            case 'successful', singin_days:
+            case 'successful', signin_days:
                 if report and report_success:
                     subject = f'{datetime.date.today()}: bahamut'
-                    content = str(singin_days)
-                    emailfunc.send_email(subject, content)
+                    emailfunc.send_email(subject, content=str(signin_days)
 
             case 'failed', e:
                 if report:
                     subject = f'{datetime.date.today()}: bahamut (failed)'
-                    content = str(e)
-                    emailfunc.send_email(subject, content)
+                    emailfunc.send_email(subject, content=str(e)
 
             case _:
                 if report:
                     subject = f'{datetime.date.today()}: bahamut (unexpected match/case)'
-                    emailfunc.send_email(subject, content)
+                    emailfunc.send_email(subject)
 
     
 
