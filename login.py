@@ -66,4 +66,4 @@ def login(report=True, report_success=False) -> None:
 
 
 if __name__ == '__main__':
-    login(report_success=True)
+    login()
