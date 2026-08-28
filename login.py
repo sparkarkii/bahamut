@@ -2,27 +2,22 @@ from playwright.sync_api import Playwright, sync_playwright, expect
 import time
 import datetime
 import os
-from dotenv import load_dotenv
-import sys
-from pathlib import Path
-sys.path.append(str(Path.home()/'py_script'/'utils'))
 import emailfunc
 
 
 
 
-load_dotenv()
 id = os.environ['BAHAMUT_ID']
 pw = os.environ['BAHAMUT_PW']
-user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:152.0) Gecko/20100101 Firefox/152.0'
+useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:152.0) Gecko/20100101 Firefox/152.0'
 
 
 
 
-def run(playwright: Playwright) -> int | Exception:
+def run(playwright) -> int | Exception:
     try:
-        browser = playwright.chromium.launch(headless=False) # headless
-        context = browser.new_context(user_agent=user_agent)
+        browser = playwright.chromium.launch(headless=False) 
+        context = browser.new_context(user_agent=useragent)
         page = context.new_page()
         page.goto("https://www.gamer.com.tw/")
         expect(page.get_by_role("button", name="Close")).to_be_visible()
@@ -47,19 +42,28 @@ def run(playwright: Playwright) -> int | Exception:
         return 'fail', e
 
 
+def login(report=True, report_success=False) -> None:
+    with sync_playwright() as playwright:
+        match run(playwright):
+            case 'success', singin_days:
+                if report and report_success:
+                    subject = f'{datetime.date.today()}: bahamut'
+                    content = singin_days
+                    emailfunc.send_email(subject, content)
 
-with sync_playwright() as playwright:
-    match run(playwright):
-        case 'success', singin_days:
-            subject=f'{datetime.date.today()}: bahamut'
-            content = singin_days
-        case 'fail', e:
-            subject=f'{datetime.date.today()}: bahamut (failed)'
-            content = e
+            case 'fail', e:
+                if report:
+                    subject = f'{datetime.date.today()}: bahamut (failed)'
+                    content = e
+                    emailfunc.send_email(subject, content)
 
-    emailfunc.send_email(subject, content)
+            case _:
+                if report:
+                    subject = f'{datetime.date.today()}: bahamut (unexpected match/case)'
+                    emailfunc.send_email(subject, content)
+
+    
 
 
-
-
-
+if __name__ == '__main__':
+    login()
