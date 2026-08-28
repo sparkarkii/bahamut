@@ -36,22 +36,22 @@ def run(playwright) -> int | Exception:
             page.get_by_role("link", name="每日簽到").click()
 
         signin_days = int(page.locator('.singin-total-days').inner_text())
-        return 'sucess', signin_days
+        return 'successful', signin_days
 
     except Exception as e:
-        return 'fail', e
+        return 'failed', e
 
 
 def login(report=True, report_success=False) -> None:
     with sync_playwright() as playwright:
         match run(playwright):
-            case 'success', singin_days:
+            case 'successful', singin_days:
                 if report and report_success:
                     subject = f'{datetime.date.today()}: bahamut'
                     content = singin_days
                     emailfunc.send_email(subject, content)
 
-            case 'fail', e:
+            case 'failed', e:
                 if report:
                     subject = f'{datetime.date.today()}: bahamut (failed)'
                     content = e
