@@ -1,0 +1,65 @@
+from playwright.sync_api import Playwright, sync_playwright, expect
+import time
+import datetime
+import os
+from dotenv import load_dotenv
+import sys
+from pathlib import Path
+sys.path.append(str(Path.home()/'py_script'/'utils'))
+import emailfunc
+
+
+
+
+load_dotenv()
+id = os.environ['BAHAMUT_ID']
+pw = os.environ['BAHAMUT_PW']
+user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:152.0) Gecko/20100101 Firefox/152.0'
+
+
+
+
+def run(playwright: Playwright) -> int | Exception:
+    try:
+        browser = playwright.chromium.launch(headless=False) # headless
+        context = browser.new_context(user_agent=user_agent)
+        page = context.new_page()
+        page.goto("https://www.gamer.com.tw/")
+        expect(page.get_by_role("button", name="Close")).to_be_visible()
+        page.get_by_role("button", name="Close").click()
+        page.get_by_role("link", name="登入").click()
+        page.locator("#dialogify_1 iframe").content_frame.get_by_role("textbox", name="帳號或手機").click()
+        page.locator("#dialogify_1 iframe").content_frame.get_by_role("textbox", name="帳號或手機").fill(id)
+        page.locator("#dialogify_1 iframe").content_frame.get_by_role("textbox", name="密碼").click()
+        page.locator("#dialogify_1 iframe").content_frame.get_by_role("textbox", name="密碼").fill(pw)
+        time.sleep(3)
+        page.locator("#dialogify_1 iframe").content_frame.get_by_role("textbox", name="密碼").press("Enter")
+        time.sleep(3)
+
+        if page.locator('.singin-total-days').is_hidden():
+            page.locator('.main-nav__dropdown').click()
+            page.get_by_role("link", name="每日簽到").click()
+
+        signin_days = int(page.locator('.singin-total-days').inner_text())
+        return 'sucess', signin_days
+
+    except Exception as e:
+        return 'fail', e
+
+
+
+with sync_playwright() as playwright:
+    match run(playwright):
+        case 'success', singin_days:
+            subject=f'{datetime.date.today()}: bahamut'
+            content = singin_days
+        case 'fail', e:
+            subject=f'{datetime.date.today()}: bahamut (failed)'
+            content = e
+
+    emailfunc.send_email(subject, content)
+
+
+
+
+
