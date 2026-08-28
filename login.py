@@ -2,7 +2,7 @@ from playwright.sync_api import Playwright, sync_playwright, expect
 import time
 import datetime
 import os
-import emailfunc
+from utils import emailfunc
 
 
 
