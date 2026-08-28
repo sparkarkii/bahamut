@@ -16,7 +16,7 @@ useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:152.0) Gecko/20100101 
 
 def run(playwright) -> int | Exception:
     try:
-        browser = playwright.chromium.launch(headless=False) 
+        browser = playwright.chromium.launch(headless=True) 
         context = browser.new_context(user_agent=useragent)
         page = context.new_page()
         page.goto("https://www.gamer.com.tw/")
