@@ -48,12 +48,12 @@ def login(report=True, report_success=False) -> None:
             case 'successful', signin_days:
                 if report and report_success:
                     subject = f'{datetime.date.today()}: bahamut'
-                    emailfunc.send_email(subject, content=str(signin_days)
+                    emailfunc.send_email(subject, content=str(signin_days))
 
             case 'failed', e:
                 if report:
                     subject = f'{datetime.date.today()}: bahamut (failed)'
-                    emailfunc.send_email(subject, content=str(e)
+                    emailfunc.send_email(subject, content=str(e))
 
             case _:
                 if report:
